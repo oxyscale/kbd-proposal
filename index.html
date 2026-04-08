@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OxyScale AI - Kurved by Design Proposal</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--ox:#E8470B;--ox-dim:rgba(232,71,11,0.12);--ox-glow:rgba(232,71,11,0.25);--bg:#0B0F1A;--bg2:#111827;--bg3:#1A2235;--t1:#FFF;--t2:#C4CFDE;--t3:#7B8BA3;--t4:#4A5568;--green:#22C55E;--green-bg:rgba(34,197,94,0.08);--red:#EF4444;--red-bg:rgba(239,68,68,0.08);--radius:14px}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1)}
+.progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:100;background:rgba(255,255,255,0.04)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--ox),#FF6B35);transition:width .6s cubic-bezier(.16,1,.3,1)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;justify-content:space-between;align-items:center;padding:20px 32px;pointer-events:none}
+.nav-brand{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--ox);letter-spacing:3px;pointer-events:auto}
+.nav-counter{font-family:'Sora',sans-serif;font-size:12px;color:var(--t4);letter-spacing:1px;pointer-events:auto}
+.controls{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:90}
+.ctrl-btn{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--t3);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(12px)}
+.ctrl-btn:hover{background:var(--ox);border-color:var(--ox);color:#fff;transform:scale(1.08)}
+.ctrl-btn:disabled{opacity:.15;pointer-events:none}
+.dots{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;gap:8px}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.12);cursor:pointer;transition:all .4s}
+.dot.active{background:var(--ox);box-shadow:0 0 10px var(--ox-glow);height:20px;border-radius:3px}
+.slide-container{width:100%;height:100vh;position:relative}
+.slide{position:absolute;inset:0;opacity:0;transform:translateY(30px);pointer-events:none;transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);overflow-y:auto}
+.slide.active{opacity:1;transform:translateY(0);pointer-events:auto}
+.slide-inner{width:100%;max-width:900px;margin:0 auto;padding:80px 40px 100px}
+.slide-vc{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.slide-vc .slide-inner{padding-top:40px;padding-bottom:40px}
+.grid-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:60px 60px}
+.glow-top{position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:800px;height:600px;background:radial-gradient(ellipse,rgba(232,71,11,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
+.label{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--ox);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px}
+h1.hero{font-family:'Sora',sans-serif;font-size:clamp(34px,5vw,58px);font-weight:800;line-height:1.08;letter-spacing:-1.5px;margin-bottom:24px}
+h1.hero span{color:var(--ox)}
+h2.section{font-family:'Sora',sans-serif;font-size:clamp(26px,3.5vw,38px);font-weight:700;line-height:1.15;letter-spacing:-.5px;margin-bottom:20px}
+.p{font-size:16px;line-height:1.75;color:var(--t2);margin-bottom:16px}
+.p:last-child{margin-bottom:0}
+.p strong{color:var(--t1);font-weight:600}
+.accent{color:var(--ox);font-weight:600}
+.aln{width:60px;height:3px;background:var(--ox);border-radius:2px;margin-bottom:28px}
+.sg{opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s}
+.slide.active .sg{opacity:1;transform:translateY(0)}
+.slide.active .d1{transition-delay:.08s}.slide.active .d2{transition-delay:.16s}.slide.active .d3{transition-delay:.24s}.slide.active .d4{transition-delay:.32s}.slide.active .d5{transition-delay:.4s}.slide.active .d6{transition-delay:.48s}.slide.active .d7{transition-delay:.56s}.slide.active .d8{transition-delay:.64s}
+.comp{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:24px;border-radius:var(--radius);overflow:hidden}
+.ch{padding:14px 18px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.ch.r{background:var(--red-bg);color:var(--red)}.ch.g{background:var(--green-bg);color:var(--green)}
+.cc{padding:13px 18px;font-size:13.5px;line-height:1.55;background:var(--bg2)}
+.cc.r{color:rgba(239,68,68,.8);border-left:2px solid rgba(239,68,68,.25)}
+.cc.g{color:rgba(34,197,94,.8);border-left:2px solid rgba(34,197,94,.25)}
+.tiers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:24px}
+.tier{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:24px 20px;position:relative;cursor:pointer;transition:all .35s}
+.tier:hover{border-color:rgba(255,255,255,.1)}
+.tier.target{background:linear-gradient(135deg,var(--bg2),rgba(232,71,11,.06));border-color:rgba(232,71,11,.35);box-shadow:0 0 30px rgba(232,71,11,.08)}
+.tier.target:hover{border-color:var(--ox)}
+.tier-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t4);margin-bottom:4px}
+.tier.target .tier-lbl{color:var(--ox)}
+.tier-name{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin-bottom:10px}
+.tier-desc{font-size:13px;line-height:1.6;color:var(--t3);margin-bottom:18px}
+.tier-price{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;margin-bottom:2px}
+.tier.target .tier-price{color:var(--ox)}
+.tier-gst{font-size:11px;color:var(--t4);margin-bottom:12px}
+.tier-ret{font-size:12px;color:var(--t3);padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
+.tier.target .tier-ret{border-color:rgba(232,71,11,.2)}
+.tier-badge{position:absolute;top:-1px;right:20px;background:var(--ox);color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:0 0 6px 6px}
+.tier-exp{font-size:11px;color:var(--ox);margin-top:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.tier-exp .arr{transition:transform .3s;display:inline-block;font-size:9px}
+.tier.open .tier-exp .arr{transform:rotate(90deg)}
+.tier-det{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.16,1,.3,1)}
+.tier.open .tier-det{max-height:800px}
+.td-hd{font-size:12px;font-weight:600;color:var(--t2);margin:14px 0 8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+.tier.target .td-hd{border-color:rgba(232,71,11,.15)}
+.td-i{font-size:12.5px;color:var(--t3);padding:5px 0 5px 16px;position:relative;line-height:1.6}
+.td-i::before{content:'';position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%;background:var(--t4)}
+.tier.target .td-i::before{background:var(--ox)}
+.pillars{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.pillar{background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:20px 18px;transition:border-color .3s}
+.pillar:hover{border-color:rgba(232,71,11,.15)}
+.pn{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--ox);letter-spacing:1px;margin-bottom:6px}
+.pt{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;margin-bottom:8px}
+.pd{font-size:12.5px;line-height:1.6;color:var(--t3)}
+.daily{background:linear-gradient(135deg,rgba(232,71,11,.07),rgba(232,71,11,.02));border:1px solid rgba(232,71,11,.18);border-radius:var(--radius);padding:24px 22px;margin-top:20px}
+.daily-cost{font-family:'Sora',sans-serif;font-size:32px;font-weight:800;color:var(--ox);margin-bottom:4px}
+.daily-sub{font-size:12px;color:var(--t4);margin-bottom:14px}
+.daily-body{font-size:14px;line-height:1.65;color:var(--t2)}
+.daily-closer{font-size:14px;line-height:1.65;color:var(--t1);font-weight:500;margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,71,11,.15)}
+.vc{background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:var(--radius);padding:24px 22px;margin-bottom:14px}
+.vc-num{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--ox);letter-spacing:1px;margin-bottom:8px}
+.vc-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:600;margin-bottom:10px}
+.vc-body{font-size:14px;line-height:1.65;color:var(--t3);margin-bottom:14px}
+.vc-anchor{font-size:14.5px;line-height:1.6;color:var(--t2)}
+.vc-anchor strong{color:var(--ox);font-weight:700}
+.summary{background:linear-gradient(135deg,var(--bg3),rgba(232,71,11,.05));border:1px solid rgba(232,71,11,.2);border-radius:var(--radius);padding:28px 24px;margin-top:20px}
+.sr{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;color:var(--t2)}
+.sr .sv{font-family:'Sora',sans-serif;font-weight:600;text-align:right}
+.st{display:flex;justify-content:space-between;padding:14px 0 0;margin-top:10px;border-top:1px solid rgba(232,71,11,.2);font-size:16px;font-weight:700}
+.st .sv{color:var(--ox);font-family:'Sora',sans-serif;font-size:20px;font-weight:800}
+.yg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.yc{background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:var(--radius);padding:22px 20px}
+.yc.y2{border-color:rgba(34,197,94,.2);background:linear-gradient(135deg,var(--bg2),rgba(34,197,94,.03))}
+.yl{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--t4);letter-spacing:1px;margin-bottom:14px}
+.yln{font-size:13px;color:var(--t3);padding:3px 0}
+.yt{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)}
+.yc.y2 .yt{color:var(--green);border-color:rgba(34,197,94,.15)}
+.closer{text-align:center;margin-top:28px;padding:32px 28px;background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:var(--radius)}
+.closer-text{font-family:'Sora',sans-serif;font-size:clamp(16px,2vw,20px);font-weight:600;line-height:1.5;max-width:560px;margin:0 auto}
+.cta-center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px}
+.cta-brand{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--ox);letter-spacing:3px;margin-top:48px}
+@media(max-width:860px){.slide-inner{padding:80px 24px 100px}.tiers,.comp,.pillars,.yg{grid-template-columns:1fr}.dots{display:none}.nav{padding:16px 20px}}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="glow-top"></div>
+<div class="progress"><div class="progress-fill" id="pf"></div></div>
+<nav class="nav"><div class="nav-brand">OXYSCALE AI</div><div class="nav-counter" id="counter">01 / 10</div></nav>
+<div class="dots" id="dots"></div>
+<div class="controls"><button class="ctrl-btn" id="prev">&#8592;</button><button class="ctrl-btn" id="next">&#8594;</button></div>
+<div class="slide-container">
+
+<div class="slide active" data-slide="0"><div class="slide-vc"><div class="slide-inner">
+  <div class="aln sg d1"></div>
+  <h1 class="hero sg d2">Kurved by Design<br><span>Property Styling Automation</span></h1>
+  <p class="sg d3" style="font-size:19px;color:var(--t3);margin-bottom:48px">System Proposal</p>
+  <p class="sg d4" style="font-size:14px;color:var(--t4)">Prepared by OxyScale AI</p>
+</div></div></div>
+
+<div class="slide" data-slide="1"><div class="slide-inner">
+  <div class="label sg d1">Section 01</div>
+  <h2 class="section sg d2">Where You Are Today</h2><div class="aln sg d2"></div>
+  <p class="p sg d3">Your business has a strong foundation. You have an established client base, a solid network of referring agents, and a team that knows the work inside out. The processes you have in place got you to where you are today.</p>
+  <p class="p sg d4">Currently, the operation runs across a combination of physical books, spreadsheets, a whiteboard, OneDrive, and Google Calendar. Quotes are written up on-site and processed manually. Calendar entries are created by hand. Agent enquiries come through as phone calls and texts. Photos taken at properties are transferred to OneDrive between appointments. Listing statuses on realestate.com are checked manually to track what has sold or gone under offer.</p>
+  <p class="p sg d5">The team manages a high volume of inbound communication from agents. The office handles scheduling, but agents often reach out directly as well, which adds to the daily workload. Follow-ups on open quotes can be difficult to stay on top of during busy periods with back-to-back appointments across the city.</p>
+  <p class="p sg d6">There is limited visibility at the moment on metrics like quote conversion rates, which agents are generating the most work, or how many leads come in that never get quoted. These are insights that become more valuable as the business continues to grow.</p>
+  <p class="p sg d7">The opportunity is not about fixing what is broken. It's about giving the business the infrastructure to handle the volume it's already doing more efficiently, and to scale from here without adding more manual work to the plate.</p>
+</div></div>
+
+<div class="slide" data-slide="2"><div class="slide-vc"><div class="slide-inner">
+  <div class="label sg d1">Day One Impact</div>
+  <h2 class="section sg d2">This Is Not a New Hire.<br>This Is <span class="accent">Infrastructure.</span></h2><div class="aln sg d2"></div>
+  <p class="p sg d3">This is also not like hiring a new team member. A new employee takes weeks to onboard, needs training, has sick days, and can only work on one thing at a time. This system is implemented ready to go from day one. It does not need to learn your processes because we build your processes into it before it goes live. From the moment it's switched on, it's handling leads, generating quotes, sending invoices, updating your CRM, monitoring listings, and following up on open quotes - all at the same time, across every job, without missing a step.</p>
+  <p class="p sg d4" style="color:var(--t1);font-weight:500">It delivers the same level of detail and professionalism for every single client, every single job, every single time. No bad days. No forgotten follow-ups. No inconsistency. Just a reliable system running in the background so your team can focus on the work that actually moves the business forward.</p>
+</div></div></div>
+
+<div class="slide" data-slide="3"><div class="slide-inner">
+  <div class="label sg d1">The Shift</div>
+  <h2 class="section sg d2">Before &amp; After</h2><div class="aln sg d2"></div>
+  <div class="comp sg d3">
+    <div class="ch r">How It Works Today</div><div class="ch g">How It Works With the System</div>
+    <div class="cc r">Agents call or text directly, bypassing the office</div><div class="cc g">Agents submit a simple online form - lead lands in the CRM instantly</div>
+    <div class="cc r">Quotes written up manually in physical books</div><div class="cc g">Mobile quote builder on-site, press Submit and it's done</div>
+    <div class="cc r">Photos taken on-site, manually uploaded to OneDrive later</div><div class="cc g">Photos captured in the quoting form, auto-uploaded to OneDrive on submit</div>
+    <div class="cc r">Hire agreement and quote sent separately, manually</div><div class="cc g">Branded quote with hire agreement auto-generated and sent to client instantly</div>
+    <div class="cc r">Invoice created manually in Xero after acceptance</div><div class="cc g">Invoice auto-generated in Xero the moment the client accepts</div>
+    <div class="cc r">Calendar events typed in manually between appointments</div><div class="cc g">Calendar events auto-created with full access details in the description</div>
+    <div class="cc r">Packing lists created and printed manually</div><div class="cc g">Packing list auto-generated from the quote and sent to the team</div>
+    <div class="cc r">Manually checking realestate.com for sold or under offer</div><div class="cc g">AI scanner monitors listings daily and notifies you automatically</div>
+    <div class="cc r">Quote follow-ups missed during busy periods</div><div class="cc g">Automated follow-up fires after 48 hours on every open quote</div>
+    <div class="cc r">Campaign extensions handled with manual calls and invoicing</div><div class="cc g">Extension options sent automatically, invoice generated on acceptance</div>
+    <div class="cc r">No visibility on conversion rates, agent performance, or revenue trends</div><div class="cc g">Live dashboard showing exactly where the business is at - which agents are performing, where leads are dropping off, why revenue was up or down, and what to focus on next month to improve</div>
+  </div>
+</div></div>
+
+<div class="slide" data-slide="4"><div class="slide-inner">
+  <div class="label sg d1">Section 02</div>
+  <h2 class="section sg d2">Your Options</h2><div class="aln sg d2"></div>
+  <p class="p sg d3" style="font-size:15px;margin-bottom:4px">We have structured three tiers based on the scope of what we build and manage for you. Every tier includes a monthly retainer to keep the system running, monitored, and improving.</p>
+  <div class="tiers">
+    <div class="tier sg d4">
+      <div class="tier-lbl">Tier 1</div><div class="tier-name">Foundation</div>
+      <div class="tier-desc">Gets your lead intake, quoting, and payment pipeline off manual processes and into an automated system. You will still manage scheduling, campaign monitoring, and pickups manually.</div>
+      <div class="tier-price">$12,500</div><div class="tier-gst">+ GST</div>
+      <div class="tier-ret">Retainer: $650 + GST / month</div>
+      <div class="tier-exp">View details <span class="arr">&#9654;</span></div>
+      <div class="tier-det"><div class="td-hd">What is included:</div>
+        <div class="td-i">Phase 1 - Agent Lead Capture: agent-facing form, Monday.com CRM entry, auto-notification emails, new leads queue</div>
+        <div class="td-i">Phase 2 - On-Site Quoting: mobile quote builder, photo capture with OneDrive upload, auto-generated branded quote with hire agreement, agent notification, CRM auto-update</div>
+        <div class="td-i">Phase 3 - Acceptance &amp; Payment: quote acceptance triggers, Xero auto-invoicing, paid status synced to CRM, install details form</div>
+      </div>
+    </div>
+    <div class="tier sg d5">
+      <div class="tier-lbl">Tier 2</div><div class="tier-name">Complete Operations</div>
+      <div class="tier-desc">The full end-to-end system. Lead capture through to pickup and close-out. Every manual process replaced. You can run the business - but you cannot yet see the business.</div>
+      <div class="tier-price">$16,500</div><div class="tier-gst">+ GST</div>
+      <div class="tier-ret">Retainer: $800 + GST / month</div>
+      <div class="tier-exp">View details <span class="arr">&#9654;</span></div>
+      <div class="tier-det"><div class="td-hd">Everything in Tier 1, plus:</div>
+        <div class="td-i">Phase 4 - Scheduling &amp; Install: calendar auto-creation with access details, packing list auto-generation, three-way confirmation emails (office, client, agent), auto-move to In Progress on install date</div>
+        <div class="td-i">Phase 5 - Campaign Monitoring: AI property scanner monitoring realestate.com daily, campaign expiry handling with auto-extension offers and Xero invoicing, automated 48-hour follow-up on open quotes</div>
+        <div class="td-i">Phase 6 - Pickup &amp; Close-Out: congratulations email with upsell, pickup scheduling with calendar events, pickup confirmation with key return tracking, final thank-you and close-out, job archiving</div>
+      </div>
+    </div>
+    <div class="tier target sg d6">
+      <div class="tier-badge">Recommended</div>
+      <div class="tier-lbl">Tier 3</div><div class="tier-name">Complete Operations + Intelligence</div>
+      <div class="tier-desc">Everything in Tier 2, plus the visibility layer that turns raw operations into business intelligence. For just $3,000 more than Tier 2, you go from running the business to actually seeing the business - which agents perform, which leads are slipping, and where the revenue is heading.</div>
+      <div class="tier-price">$19,500</div><div class="tier-gst">+ GST</div>
+      <div class="tier-ret">Retainer: $950 + GST / month</div>
+      <div class="tier-exp">View details <span class="arr">&#9654;</span></div>
+      <div class="tier-det"><div class="td-hd">Everything in Tier 2, plus:</div>
+        <div class="td-i">Business Intelligence Dashboard: live dashboard pulling real data from Monday.com. Track quotes accepted, waiting, and declined. See monthly revenue, average job value, and year-on-year trends. Know exactly which agents are sending you the most work. Compare partial vs. full staging revenue. See leads that came in but were never quoted - so you know where the gaps are. This is the difference between running the business and seeing the business.</div>
+        <div class="td-i">Google Review Automation: every completed job triggers an automated review request to the client. Smart filtering ensures only 4+ star reviews are directed to Google - anything lower is captured internally as private feedback. Builds your online presence and SEO organically over time without lifting a finger. No third-party review platform subscription needed.</div>
+      </div>
+    </div>
+  </div>
+  <p class="p sg d7" style="font-size:15px;color:var(--t2);margin-top:24px"><strong>Timeframe:</strong> 6 - 8 weeks depending on how long it takes to receive the required information from you.</p>
+  <p class="p sg d8" style="font-size:15px;color:var(--t2);margin-top:8px"><strong>Payment:</strong> All tiers are paid 50% upfront to commence the build. The remaining 50% is due on delivery once you are satisfied with the system. The retainer begins once the system goes live.</p>
+</div></div>
+
+<div class="slide" data-slide="5"><div class="slide-inner">
+  <div class="label sg d1">Section 03</div>
+  <h2 class="section sg d2">What Your Retainer Covers</h2><div class="aln sg d2"></div>
+  <p class="p sg d3" style="font-size:15px;margin-bottom:4px"><strong>The build gets you live. The retainer keeps you running.</strong></p>
+  <p class="p sg d3" style="font-size:14px">This system is not a piece of software we install and walk away from. It's a fully managed service - actively monitored, maintained, and improved on an ongoing basis. Think of it like subscribing to a platform like Salesforce or HubSpot, except this one is built entirely around how your business operates, not how a generic software company thinks it should.</p>
+  <div class="pillars">
+    <div class="pillar sg d3"><div class="pn">01</div><div class="pt">System Monitoring</div><div class="pd">Your system runs hundreds of automations daily. We watch them proactively, catching and resolving issues before they affect your operations. Without this, a broken workflow could mean leads not captured, quotes not sent, or invoices not generated - and you may not know until a client calls asking where their quote is.</div></div>
+    <div class="pillar sg d4"><div class="pn">02</div><div class="pt">Platform Maintenance</div><div class="pd">Your system connects to Monday.com, Xero, Google Calendar, OneDrive, Twilio, and realestate.com. Each of those platforms is constantly updating their products and technical infrastructure. When they push a change, it can break a connection overnight. We monitor for these changes and fix them before you notice.</div></div>
+    <div class="pillar sg d5"><div class="pn">03</div><div class="pt">AI &amp; Running Costs</div><div class="pd">Every quote generated, every lead routed, every follow-up sent, every property listing scanned - all of it consumes AI credits and automation operations. At your volume, that is thousands of executions per month. All covered. You will never see a separate bill.</div></div>
+    <div class="pillar sg d6"><div class="pn">04</div><div class="pt">Third-Party Subscriptions</div><div class="pd">The automation platform, AI services, email and SMS infrastructure - all managed and paid for as part of the retainer. No separate accounts, no renewals to track, no surprise invoices. One predictable cost covering everything the system needs to run.</div></div>
+    <div class="pillar sg d7"><div class="pn">05</div><div class="pt">Ongoing Improvements</div><div class="pd">Your business will evolve. New templates, new fields, new team members, adjusted processes. A reasonable volume of changes is included monthly so the system always matches how you actually operate. If you spot a bottleneck or have an idea, we build it in.</div></div>
+    <div class="pillar sg d8"><div class="pn">06</div><div class="pt">Priority Support</div><div class="pd">Direct access to the team that built your system. Same-day response from people who know every part of how it works. No queues, no ticket numbers, no explaining your setup to a stranger.</div></div>
+  </div>
+  <div class="daily sg d8">
+    <div class="daily-cost">~$43 /day</div><div class="daily-sub">Per business day (Tier 3 retainer)</div>
+    <div class="daily-body">At approximately $43 per business day, you get a fully managed system handling your entire pipeline - every lead, every quote, every invoice, every property monitored, every pickup tracked. One predictable monthly cost. No surprises. No hidden fees.</div>
+    <div class="daily-closer">The retainer justifies itself the moment the system captures one additional job per month that would have otherwise slipped through the cracks. Everything beyond that is net gain.</div>
+  </div>
+</div></div>
+
+<div class="slide" data-slide="6"><div class="slide-inner">
+  <div class="label sg d1">Section 04</div>
+  <h2 class="section sg d2">Is It Worth It?</h2><div class="aln sg d2"></div>
+  <p class="p sg d3" style="font-size:15px;margin-bottom:20px">Let us put some numbers around it. We will use a conservative baseline of $1,000,000 in annual revenue. If your business does more than that, the maths only gets better.</p>
+  <div class="vc sg d4"><div class="vc-num">01</div><div class="vc-title">Lost Jobs</div>
+    <div class="vc-body">How many leads or jobs do you think slip through the cracks each month? Not because anyone is doing anything wrong - just because it's manual and things get busy. An agent texts during a back-to-back quoting day and it gets buried. A follow-up does not happen because the next install took priority. Even if it's one or two a month, multiply that by your average job value, then multiply by twelve. That is your first number.</div>
+    <div class="vc-body">The reality is, right now there is no way to even know the answer to that question. Without a system tracking what comes in versus what gets quoted, the leakage is invisible. You cannot fix what you cannot see.</div>
+    <div class="vc-anchor">On a $1M business, even a conservative 5% leakage rate is <strong>$50,000 a year</strong> in revenue you probably never knew you lost.</div>
+  </div>
+  <div class="vc sg d5"><div class="vc-num">02</div><div class="vc-title">Admin Hours</div>
+    <div class="vc-body">How many hours a week does your team spend on work this system would do automatically? Building quotes, copying details into Xero, updating spreadsheets, sending follow-up emails, chasing access info, updating calendars, printing packing lists, manually checking listing statuses online. Whatever that number is, multiply it by what that time costs you. That is your second number.</div>
+    <div class="vc-anchor">At $40/hour loaded cost, 15-20 hours a week is <strong>$30,000 - $40,000 a year</strong> on tasks this system does automatically.</div>
+  </div>
+</div></div>
+
+<div class="slide" data-slide="7"><div class="slide-inner">
+  <div class="label sg d1">Section 04 (continued)</div>
+  <div class="vc sg d2"><div class="vc-num">03</div><div class="vc-title">Increased Quoting Capacity</div>
+    <div class="vc-body">When your team is no longer spending 15-20 hours a week on admin, that time goes back into the business. More site visits, more quotes out the door, more jobs won. The system doesn't just save time - it increases the number of opportunities you can physically pursue in a week.</div>
+    <div class="vc-anchor">Every additional quote per week at your average job value <strong>compounds across the year.</strong></div>
+  </div>
+  <div class="vc sg d3"><div class="vc-num">04</div><div class="vc-title">Speed to Lead + Conversion Through Consistency</div>
+    <div class="vc-body">When an agent sends you a lead, how long before they hear back? If you are on the road quoting, it might be hours. Your competitors are answering too. The jobs you never knew you lost because someone else responded faster - that is revenue you cannot even measure.</div>
+    <div class="vc-body">Now pair that with what happens when the quote does land. A branded, professionally formatted quote within minutes of your visit - complete with hire agreement, terms, and a clear breakdown. Every client gets the same level of detail. Every follow-up happens on time. No gaps, no inconsistency. That consistency builds trust, and trust converts.</div>
+    <div class="vc-anchor">A 10% uplift in conversion rate on a $1M business is <strong>$100,000 a year</strong> in additional revenue - just from winning jobs you were already quoting on.</div>
+  </div>
+</div></div>
+
+<div class="slide" data-slide="8"><div class="slide-inner">
+  <div class="label sg d1">The Numbers</div>
+  <h2 class="section sg d2">Conservative Annual Value</h2><div class="aln sg d2"></div>
+  <div class="summary sg d3">
+    <p style="font-size:12px;color:var(--t4);margin-bottom:14px;font-style:italic">Based on a conservative $1,000,000 per annum baseline</p>
+    <div class="sr"><span>Lost job recovery</span><span class="sv">$50,000</span></div>
+    <div class="sr"><span>Admin hour savings</span><span class="sv">$30,000 - $40,000</span></div>
+    <div class="sr"><span>Increased quoting capacity</span><span class="sv">Compounding</span></div>
+    <div class="sr"><span>Speed to lead + conversion through consistency</span><span class="sv">$100,000</span></div>
+    <div class="st"><span>Conservative total</span><span class="sv" style="color:var(--green)">$180,000 - $190,000+</span></div>
+  </div>
+  <div class="yg sg d4">
+    <div class="yc"><div class="yl">YEAR 1 (TIER 3)</div><div class="yln">Build: $19,500 + GST</div><div class="yln">Retainer: $950 x 12 = $11,400 + GST</div><div class="yt">$30,900 + GST</div></div>
+    <div class="yc y2"><div class="yl">YEAR 2 AND BEYOND</div><div class="yln">Build: $0 (already built)</div><div class="yln">Retainer: $950 x 12 = $11,400 + GST</div><div class="yt">$11,400 + GST</div></div>
+  </div>
+  <div class="closer sg d5"><p class="closer-text">That is based on $1M. If your business is doing more than that, <span style="color:var(--green);font-weight:600">the maths only gets better.</span></p></div>
+</div></div>
+
+<div class="slide" data-slide="9">
+<div class="cta-center">
+  <div class="aln sg d1" style="margin:0 auto 28px"></div>
+  <h1 class="hero sg d2" style="font-size:clamp(30px,4.5vw,48px)">Ready to<br><span>Work Smarter?</span></h1>
+  <div class="sg d4" style="display:flex;flex-direction:column;gap:12px;align-items:center">
+    <p style="color:var(--t3);font-size:15px;margin-bottom:8px">Please email me for any questions, happy to help.</p>
+    <span style="color:var(--ox);font-family:'Sora',sans-serif;font-size:18px;font-weight:600;letter-spacing:0.5px">jordan@oxyscale.ai</span>
+    <span style="color:var(--t2);font-family:'Sora',sans-serif;font-size:16px;font-weight:500">0478 197 600</span>
+  </div>
+  <div class="cta-brand sg d5">OXYSCALE AI</div>
+</div>
+</div>
+
+</div>
+<script>
+var current=0,total=10;
+var dots=document.getElementById('dots');
+var prevBtn=document.getElementById('prev');
+var nextBtn=document.getElementById('next');
+
+for(var i=0;i<total;i++){
+  var d=document.createElement('div');
+  d.className='dot'+(i===0?' active':'');
+  d.setAttribute('data-i',String(i));
+  d.addEventListener('click',function(){goTo(parseInt(this.getAttribute('data-i')))});
+  dots.appendChild(d);
+}
+
+function goTo(n){if(n<0||n>=total||n===current)return;current=n;update()}
+function go(dir){goTo(current+dir)}
+
+function update(){
+  var slides=document.querySelectorAll('.slide');
+  var allDots=document.querySelectorAll('.dot');
+  for(var i=0;i<slides.length;i++){
+    if(i===current){slides[i].classList.add('active')}else{slides[i].classList.remove('active')}
+  }
+  for(var i=0;i<allDots.length;i++){
+    if(i===current){allDots[i].classList.add('active')}else{allDots[i].classList.remove('active')}
+  }
+  document.getElementById('pf').style.width=((current/(total-1))*100)+'%';
+  document.getElementById('counter').textContent=String(current+1).padStart(2,'0')+' / '+String(total).padStart(2,'0');
+  prevBtn.disabled=current===0;
+  nextBtn.disabled=current===total-1;
+}
+
+prevBtn.addEventListener('click',function(){go(-1)});
+nextBtn.addEventListener('click',function(){go(1)});
+
+var tiers=document.querySelectorAll('.tier');
+for(var i=0;i<tiers.length;i++){
+  tiers[i].addEventListener('click',function(){this.classList.toggle('open')});
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '){e.preventDefault();go(1)}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();go(-1)}
+});
+
+var t0=null;
+document.addEventListener('touchstart',function(e){t0=e.touches[0].clientX});
+document.addEventListener('touchend',function(e){if(t0===null)return;var dx=e.changedTouches[0].clientX-t0;if(Math.abs(dx)>50){dx<0?go(1):go(-1)}t0=null});
+
+update();
+</script>
+</body>
+</html>
